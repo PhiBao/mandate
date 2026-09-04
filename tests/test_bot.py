@@ -145,3 +145,16 @@ class TestWhyDerivation:
         bot.handle(_update("/why @someone"))
         assert "bootstrapped" in t.last()
         assert "no model in the loop" in t.last()
+
+
+class TestSearchCommand:
+    def test_search_usage_without_query(self, tmp_path):
+        bot, _, t = _bot(tmp_path)
+        bot.handle(_update("/search", user="carol"))
+        assert "Usage: /search" in t.last()
+
+    def test_search_no_matches(self, tmp_path):
+        bot, _, t = _bot(tmp_path)
+        bot.handle(_update("/search zzz-no-such-trader", user="carol"))
+        out = t.last()
+        assert "No matches" in out or "Peers matching" in out

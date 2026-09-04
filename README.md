@@ -67,7 +67,7 @@ All core memory paths are now exercised — either via tests or live code. One l
 | Evidence cache | `src/mandate/memory.py:173` / `:177` | **Wired**: `hyperliquid_free.py:95` + `omni.py:27` check `get_cached_evidence()` before fetch, write via `cache_evidence()` with 6h TTL; verified in `tests/test_fixes.py` |
 | Position dedup | `src/mandate/memory.py:203` + `verdicts.py:24` | **Wired**: ingest skips duplicate `pos:{uid}` refs; `position_uid` in `records.py:110` |
 | Cost ledger | `src/mandate/memory.py:129` | **Wired (opt-in)**: `X402Payer.fetch(ledger_chat_id=…) -> append_ledger()` (`payments.py:138`); adapter threads it when caller supplies `ledger_chat_id` |
-| Bootstrap spend flag | `src/mandate/memory.py:120` / `:124` | **Wired**: `X402Payer(mem=…)` read in `authorize()` (`payments.py:88`) + mark after paid T0 fetch (`:136`) |
+| Bootstrap spend flag | `src/mandate/memory.py:120` / `:124` | **Wired**: `X402Payer(mem=…)` read in `authorize()` (`payments.py:88`) + mark after paid T0 fetch (`:137`) |
 | Ask counts | `src/mandate/memory.py:230` / `:246` | **Wired**: `bot.py:177` `incr_ask_count()` survives restart; `tests/test_fixes.py` proves fresh `MandateMemory(db_path)` sees same count |
 | Search | `src/mandate/memory.py:264` `search_traders()` | **Wired**: `bot.py:155` `/search` command surfaces FTS5 hits |
 
@@ -103,7 +103,7 @@ All core memory paths are now exercised — either via tests or live code. One l
 ```bash
 python3 -m venv .venv && . .venv/bin/activate
 pip install -e .[dev]          # or pip install sibyl-memory-client eth-account httpx "x402[httpx,evm]" pytest
-pytest -q                      # 71 tests, premise gate included
+pytest -q                      # 73 tests, premise gate included
 ```
 
 Live Telegram + Base (minimal-real):
@@ -155,7 +155,7 @@ print(ev.tier, ev.verdict.distinguishable)
 
 ## Validation
 
-- **71 tests:** `pytest -q` — core statistical premise (`tests/test_stats.py:TestPremiseGate`), tier ladder, claim EIP-191, budget gates incl. fail-closed price discovery and bootstrap wiring (`tests/test_payments_gate.py`), ingest idempotency + mandate auto-persist + forward-only + ask-count persistence + Hyperliquid free cache (`tests/test_fixes.py`), Sibyl round-trip + supersession + fresh-process recall, bot 5-state flows incl. `/search`, anchor/digest.
+- **73 tests:** `pytest -q` — core statistical premise (`tests/test_stats.py:TestPremiseGate`), tier ladder, claim EIP-191, budget gates incl. fail-closed price discovery and bootstrap wiring (`tests/test_payments_gate.py`), ingest idempotency + mandate auto-persist + forward-only + ask-count persistence + Hyperliquid free cache (`tests/test_fixes.py`), Sibyl round-trip + supersession + fresh-process recall, bot 5-state flows incl. `/search`, anchor/digest.
 - **The premise gate test** is `tests/test_stats.py:TestPremiseGate` — synthetic skilled (`mean 0.03 sd 0.08 n 60`) must be `distinguishable`, lucky (`0.02 sd 0.45 n 40`) must not.
 - **Live verification performed:** Base wallet `0x4Ba1…1D73` `0.000247 ETH` + `1.340200 USDC`, wallet op mined, x402 `$0.005` settlement verified with USDC deduction.
 

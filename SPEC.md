@@ -2,7 +2,7 @@
 
 **One-liner:** An agent that lives in a trading group chat, maintains an unfakeable longitudinal track record for every member, and converts that record into a revocable **Earned Mandate** — memory-derived authority to act.
 
-**Status:** Build window Sep 1–10, 2026. Core engine built and tested (71 tests, premise gate passing). Free Hyperliquid adapter + mandate auto-persist + forward-only filter + idempotent ingest + ask-count persistence all wired; this spec locks remaining scope.
+**Status:** Build window Sep 1–10, 2026. Core engine built and tested (73 tests, premise gate passing). Free Hyperliquid adapter + mandate auto-persist + forward-only filter + idempotent ingest + ask-count persistence all wired; this spec locks remaining scope.
 
 ---
 
