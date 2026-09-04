@@ -1,0 +1,16 @@
+app = "mandate"
+primary_region = "sin"
+
+# Pure worker: Telegram long-polling loop, outbound HTTPS only.
+# No [[services]] block — nothing needs inbound traffic.
+
+[processes]
+worker = "python -m mandate.main"
+
+# Persistent volume: Sibyl SQLite memory must survive restarts/deploys.
+[[mounts]]
+source = "mandate_data"
+destination = "/data"
+
+[env]
+MANDATE_DB_PATH = "/data/memory.db"
