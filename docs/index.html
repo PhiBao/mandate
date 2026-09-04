@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mandate — Forward-only trader verification</title>
+<meta name="description" content="Mandate lives in your Telegram trading group, maintains an unfakeable track record for every member, and converts it into a revocable Earned Mandate.">
+<style>
+  :root {
+    --bg: #0a0e14;
+    --panel: #11161f;
+    --line: #232b38;
+    --text: #e8edf3;
+    --muted: #9aa7b8;
+    --accent: #3ddc84;
+    --warn: #ffb224;
+    --link: #6cb8ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+  nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 0; border-bottom: 1px solid var(--line);
+  }
+  nav .brand { font-weight: 800; letter-spacing: 0.5px; }
+  nav .brand span { color: var(--accent); }
+  nav a { color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 14px; }
+  nav a:hover { color: var(--text); }
+  .hero { padding: 72px 0 48px; text-align: center; }
+  .hero .kicker {
+    display: inline-block; font-size: 13px; color: var(--accent);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 16px; margin-bottom: 24px; background: var(--panel);
+  }
+  .hero h1 { font-size: 44px; line-height: 1.15; letter-spacing: -1px; margin-bottom: 20px; }
+  .hero p.sub { color: var(--muted); font-size: 19px; max-width: 640px; margin: 0 auto 36px; }
+  .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 14px 30px; border-radius: 10px;
+    font-weight: 700; font-size: 16px; text-decoration: none;
+  }
+  .btn-tg { background: #229ed9; color: #fff; }
+  .btn-tg:hover { background: #1b8ac0; }
+  .btn-gh { border: 1px solid var(--line); color: var(--text); background: var(--panel); }
+  .btn-gh:hover { border-color: var(--muted); }
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px; margin: 56px 0;
+  }
+  .stat {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 20px; text-align: center;
+  }
+  .stat .n { font-size: 28px; font-weight: 800; color: var(--accent); }
+  .stat .l { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  section { padding: 36px 0; }
+  h2 { font-size: 26px; margin-bottom: 20px; letter-spacing: -0.5px; }
+  .steps { display: grid; gap: 14px; }
+  .step {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 20px 22px;
+  }
+  .step .num {
+    display: inline-block; width: 28px; height: 28px; line-height: 28px;
+    text-align: center; border-radius: 50%; background: var(--accent);
+    color: #06110b; font-weight: 800; font-size: 14px; margin-right: 10px;
+  }
+  .step h3 { display: inline; font-size: 17px; }
+  .step p { color: var(--muted); margin-top: 8px; font-size: 15px; }
+  .step code, .cmd code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: #0d1219; padding: 2px 7px; border-radius: 6px;
+    font-size: 13.5px; color: var(--accent);
+  }
+  .cmds { display: grid; gap: 12px; }
+  .cmd {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 16px 20px;
+  }
+  .cmd p { color: var(--muted); font-size: 15px; margin-top: 6px; }
+  .card {
+    background: #0d1219; border: 1px solid var(--line); border-radius: 12px;
+    padding: 22px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 14.5px; white-space: pre-wrap; color: var(--text);
+  }
+  .card .hl-warn { color: var(--warn); }
+  .proof li { margin-bottom: 12px; color: var(--muted); }
+  .proof a { color: var(--link); }
+  .proof strong { color: var(--text); }
+  footer {
+    border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 44px;
+    color: var(--muted); font-size: 14px; text-align: center;
+  }
+  footer a { color: var(--link); }
+  @media (max-width: 600px) { .hero h1 { font-size: 32px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <div class="brand">MANDATE<span>.</span></div>
+    <div>
+      <a href="#how">How it works</a>
+      <a href="#commands">Commands</a>
+      <a href="#proof">Live proof</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="kicker">LIVE IN TELEGRAM · SETTLED ON BASE</div>
+    <h1>Forward-only trader verification with earned mandates.</h1>
+    <p class="sub">Mandate lives in your trading group chat, keeps an unfakeable track record for every member, and turns it into a revocable <strong>Earned Mandate</strong> — reputation you can check, not screenshots you have to trust.</p>
+    <div class="cta-row">
+      <a class="btn btn-tg" href="https://t.me/MandateBetaBot">Open @MandateBetaBot in Telegram</a>
+      <a class="btn btn-gh" href="https://github.com/PhiBao/mandate">Read the code</a>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n">71</div><div class="l">tests passing</div></div>
+    <div class="stat"><div class="n">T0–T3</div><div class="l">earned tiers, revocable</div></div>
+    <div class="stat"><div class="n">95% CI</div><div class="l">bootstrap, 10k resamples</div></div>
+    <div class="stat"><div class="n">Base</div><div class="l">claims anchored onchain</div></div>
+  </div>
+
+  <section id="how">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div class="step">
+        <span class="num">1</span><h3>Claim a wallet</h3>
+        <p>Run <code>/claim &lt;wallet&gt;</code>, sign the exact EIP-191 message with your private key. The bot verifies signer == wallet and timestamps the claim — permanently. Claiming 5 wallets to promote the winner is impossible: all claims bind and all count.</p>
+      </div>
+      <div class="step">
+        <span class="num">2</span><h3>Forward-only tracking</h3>
+        <p>Closed positions are ingested <em>from your claim timestamp only</em>. Anything before the claim doesn't exist. Retroactive cherry-picking is structurally impossible, not just discouraged.</p>
+      </div>
+      <div class="step">
+        <span class="num">3</span><h3>Honest verdicts</h3>
+        <p>Mean return is bootstrapped into a 95% confidence interval and benchmarked against BTC. If the interval includes zero, the card says so: <em>not distinguishable from luck</em> — the line incumbents won't ship.</p>
+      </div>
+      <div class="step">
+        <span class="num">4</span><h3>Standing on every call</h3>
+        <p>Anyone posting a call gets a standing card attached — including <em>UNVERIFIED</em> for members who never claimed. Refusal to verify is a first-class signal, visible to the whole room.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The money-shot card</h2>
+    <div class="card">@caller — <span class="hl-warn">NOT PROVEN (T1)</span>
+88 closed trades since Feb 3 · Win rate 61%
+Mean return +3.1% — but 95% CI: −1.2% to +7.4%
+Interval includes zero. Not distinguishable from luck.
+
+Over the same window: BTC +18%, this wallet +11%.</div>
+  </section>
+
+  <section id="commands">
+    <h2>Commands</h2>
+    <div class="cmds">
+      <div class="cmd"><code>/claim &lt;wallet&gt; [signature]</code><p>Two-step wallet claim: get the message, sign it, send back the signature.</p></div>
+      <div class="cmd"><code>/standing [@user]</code><p>Full standing card — tier, trades, win rate, CI, drawdown, wallets claimed.</p></div>
+      <div class="cmd"><code>/why [@user]</code><p>The derivation trail: claim hash, evidence, exclusions, CI method, tier reasons.</p></div>
+      <div class="cmd"><code>/search &lt;query&gt;</code><p>Search traders and verdicts across persistent memory.</p></div>
+    </div>
+  </section>
+
+  <section id="proof">
+    <h2>Live proof, not promises</h2>
+    <ul class="proof">
+      <li><strong>Wallet op on Base:</strong> claim hash anchored in calldata — <a href="https://basescan.org/tx/0xe4555aae22aef955232e8ffdcdce48b014638a596e70615ee5313128745943b0">basescan.org/tx/0xe4555a…5943b0</a>, block 50258124. Verifiable without trusting our database.</li>
+      <li><strong>x402 payment in live USDC on Base:</strong> CoinGecko price feed settled $0.005 with onchain balance delta to prove it.</li>
+      <li><strong>Deterministic tiers, no LLM in the authority path:</strong> T0_unproven → T1_observed (≥10) → T2_credible (≥30 + skill + risk pass) → T3_trusted (≥100 + 60d + excess CI). Revocation on risk flags is immediate.</li>
+      <li><strong>Open source (MIT):</strong> every memory pointer documented — a judge finds the critical path in under two minutes.</li>
+    </ul>
+    <div class="cta-row" style="margin-top:28px">
+      <a class="btn btn-tg" href="https://t.me/MandateBetaBot">Try it: @MandateBetaBot</a>
+    </div>
+  </section>
+
+  <footer>
+    Mandate — trading happens anywhere, reputation settles on Base.<br>
+    Built on <a href="https://sibyllabs.org">Sibyl Memory</a> · <a href="https://github.com/PhiBao/mandate">github.com/PhiBao/mandate</a> · MIT
+  </footer>
+
+</div>
+</body>
+</html>
