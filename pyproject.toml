@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mandate"
+version = "0.1.0"
+description = "Forward-only trader verification with earned mandates"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "sibyl-memory-client>=0.6.1",
+    "eth-account>=0.13.7",
+    "httpx>=0.28",
+    "x402>=2.19.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
