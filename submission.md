@@ -42,7 +42,7 @@ Without memory, Mandate forgets when each wallet claim was made — so every cla
 ## Partner stacks and where
 
 - **Base (verified, live):** claim-hash anchor transactions with on-block timestamps (`0xc9344b33…8be0f4` for the live demo wallet claim, `0xe4555aae…5943b0` prep-window); x402 v2 USDC payments for data with a fail-closed budget gate before any signing (`src/mandate/payments.py:75` → `src/mandate/budget.py:18`), settlement tx decoded from the `PAYMENT-RESPONSE` header.
-- **Virtuals (verified, live):** ACP agent `mandate-verifier` registered; **job #76354** ran the full onchain ACP lifecycle on Base — created → budget.set → **funded 0.99 USDC into escrow** → deliverable submitted (hash `0x35dc9ca2…`) → evaluator honestly rejected `insufficientData` deliverable → escrow refunded. Lifecycle journaled in Sibyl (`kind: acp_job`). Re-run after indexer cycles; open second-opinion jobs #76349/#76350 pending provider response.
+- **Virtuals (verified, live):** ACP agent `mandate-verifier` registered **with a live offering** (`verdict_verification`, $0.01). **Job #76381 completed onchain**: created → budget.set → **funded 0.99 USDC escrow on Base** → submitted → **completed**, escrow released. Three further funded jobs (#76354/#76369/#76375) exercised the evaluator path with honest rejects + refunds (deliverables were `insufficientData`); #76376 requests onchain verification of real swap `0x8f7474e6…d7f8`. All lifecycles journaled in Sibyl (`kind: acp_job`).
 - **Sibyl (mandatory):** `sibyl-memory-client` — file-based SQLite/FTS5, zero embeddings.
 
 ## Live evidence for this build

@@ -179,6 +179,7 @@ Over the same window: BTC +18%, this wallet +11%.</div>
       <li><strong>Claim timestamps are onchain:</strong> the live demo wallet's claim hash is anchored in calldata — <a href="https://basescan.org/tx/0xc9344b33a6ea5b5cea2ea30612a3b5e8bd43f1999afc11507c736b2fca8be0f4">basescan.org/tx/0xc9344b…be0f4</a> (2026-09-05), plus prep-window anchors <a href="https://basescan.org/tx/0xe4555aae22aef955232e8ffdcdce48b014638a596e70615ee5313128745943b0">basescan.org/tx/0xe4555a…5943b0</a>, block 50258124. Verifiable without trusting our database.</li>
       <li><strong>Real trades, forward-only:</strong> the demo wallet claimed its wallet at 02:16:59 UTC, then traded a real ETH perp on Hyperliquid (fills 536629282544 / 536629444865). The verifier ingested the closed position from the public API and issued the honest verdict: <em>T0 unproven, n=1</em> — because that is the truth.</li>
       <li><strong>x402 payment in live USDC on Base:</strong> 402-gated price feed settled $0.005 with an onchain USDC balance delta to prove it.</li>
+      <li><strong>Agent commerce on Virtuals ACP:</strong> <code>mandate-verifier</code> is a registered ACP provider (<code>verdict_verification</code>, $0.01); job #76381 ran the full paid lifecycle onchain (funded escrow → submitted → completed), with three honest rejects + refunds where evaluators returned unmeasured reports.</li>
       <li><strong>Deterministic tiers, no LLM in the authority path:</strong> T0_unproven → T1_observed (≥10) → T2_credible (≥30 + skill + risk pass) → T3_trusted (≥100 + 60d + excess CI). Revocation on risk flags is immediate.</li>
       <li><strong>Open source (MIT):</strong> every memory pointer documented — a judge finds the critical path in under two minutes.</li>
     </ul>
@@ -217,8 +218,12 @@ Over the same window: BTC +18%, this wallet +11%.</div>
            First wallet claim recorded &amp; anchored on Base (tx 0xc9344b…be0f4)
            First real forward-only trade ingested from the public API —
            verdict: T0 unproven, n=1, "not distinguishable" (honest, by design)
-           First ACP job lifecycle on Virtuals: #76354 funded 0.99 USDC
-           escrow on Base -> deliverable -> honest reject + refund
+           First ACP job lifecycle on Virtuals: #76381 COMPLETED onchain
+           (created -> funded 0.99 USDC escrow -> submitted -> completed)
+           + honest rejects with refunds on #76354/#76369/#76375
+           mandate-verifier now a registered ACP provider (verdict_verification)
+           Real Base swap 0x8f7474e6…d7f8 (min-out honored) under independent
+           verification via ExecutionProof (job #76376)
 2026-09-04  Verifier deployed on Fly.io with persistent memory volume
 2026-08-xx  10+ prep-window operator discovery conversations; spec locked
            (SPEC.md §10: activation = ≥3 claims + ≥1 card on a live call in 7d)</div>
