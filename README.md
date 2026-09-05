@@ -66,8 +66,9 @@ Mandate turns every call into a checkable claim against a forward-only, timestam
 
 **Virtuals — agent commerce (live ACP):**
 
-- ACP agent **`mandate-verifier`** registered on Virtuals (wallet `0xc0a1374c…`), funded on Base USDC, with a restricted-policy signer.
-- A real ACP job hires a second-opinion evaluator over the verifier's tier-promotion decision; the job id and deliverable are recorded in the Sibyl journal. *(see ACP section below for the live job id)*
+- ACP agent **`mandate-verifier`** registered on Virtuals (wallet `0xc0a1374c…172e`), funded on Base USDC, restricted-policy signer.
+- **ACP job #76354** (`evaluate_trading`): full onchain lifecycle exercised — `job.created → budget.set (0.99 USDC) → job.funded (escrow on Base) → job.submitted (deliverableHash 0x35dc9ca2…) → evaluator rejected (all dimensions `insufficientData`: agent too new for the indexer) → escrow refunded`. Honest evaluation cut both ways: we don't pay for empty reports. Re-run scheduled after the indexer cycles the agent; jobs #76349/#76350 (second-opinion audit requests) remain open with providers.
+- The job lifecycle is journaled in Sibyl (`kind: acp_job`, cost ledger) — agent commerce is part of the persistent record, not a side demo.
 
 **Sibyl — mandatory, never a multiplier:** `sibyl-memory-client` 0.6.1 (SQLite/FTS5, `MemoryClient.local(path)`), file-based, zero embeddings, zero vector DB.
 
@@ -91,7 +92,7 @@ Mandate turns every call into a checkable claim against a forward-only, timestam
 | Real perp trade, after the claim | long 0.0043 ETH @ $2451.4 → closed @ $2451.3 on Hyperliquid, fills `536629282544` / `536629444865` |
 | Real ingest → verdict on the live bot DB | free public-API adapter, forward-only since claim; `T0_unproven, n=1, distinguishable=False` |
 | x402 paid fetch with settlement | 402 probe → USDC delta −$0.005 on Base |
-| ACP job | *(job id recorded in journal — see ACP section)* |
+| ACP job lifecycle (Virtuals) | job #76354 funded 0.99 USDC on Base → deliverable → honest reject + refund; journaled in Sibyl |
 
 ## Quickstart
 
