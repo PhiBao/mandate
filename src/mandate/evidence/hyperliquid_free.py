@@ -108,8 +108,6 @@ class HyperliquidFreeAdapter:
                     fetched_at = cached.get("fetched_at")
                     if fetched_at:
                         try:
-                            from datetime import datetime, timezone
-
                             dt = datetime.fromisoformat(fetched_at.replace("Z", "+00:00"))
                             age_h = (datetime.now(timezone.utc) - dt).total_seconds() / 3600
                             if age_h < self._cache_ttl_hours:

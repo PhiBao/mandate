@@ -120,6 +120,7 @@
     <div class="cta-row">
       <a class="btn btn-tg" href="https://t.me/MandateBetaBot">Open @MandateBetaBot in Telegram</a>
       <a class="btn btn-gh" href="https://github.com/PhiBao/mandate">Read the code</a>
+      <a class="btn btn-gh" href="#pilot">Operator pilot program</a>
     </div>
   </div>
 
@@ -180,9 +181,53 @@ Over the same window: BTC +18%, this wallet +11%.</div>
       <li><strong>Deterministic tiers, no LLM in the authority path:</strong> T0_unproven → T1_observed (≥10) → T2_credible (≥30 + skill + risk pass) → T3_trusted (≥100 + 60d + excess CI). Revocation on risk flags is immediate.</li>
       <li><strong>Open source (MIT):</strong> every memory pointer documented — a judge finds the critical path in under two minutes.</li>
     </ul>
+  <section id="proof">
+    <h2>Live proof, not promises</h2>
+    <ul class="proof">
+      <li><strong>Claim timestamps are onchain:</strong> the live demo wallet's claim hash is anchored in calldata — <a href="https://basescan.org/tx/0xc9344b33a6ea5b5cea2ea30612a3b5e8bd43f1999afc11507c736b2fca8be0f4">basescan.org/tx/0xc9344b…be0f4</a> (2026-09-05), plus prep-window anchors <a href="https://basescan.org/tx/0xe4555aae22aef955232e8ffdcdce48b014638a596e70615ee5313128745943b0">basescan.org/tx/0xe4555a…5943b0</a>, block 50258124. Verifiable without trusting our database.</li>
+      <li><strong>Real trades, forward-only:</strong> the demo wallet claimed its wallet at 02:16:59 UTC, then traded a real ETH perp on Hyperliquid (fills 536629282544 / 536629444865). The verifier ingested the closed position from the public API and issued the honest verdict: <em>T0 unproven, n=1</em> — because that is the truth.</li>
+      <li><strong>x402 payment in live USDC on Base:</strong> 402-gated price feed settled $0.005 with an onchain USDC balance delta to prove it.</li>
+      <li><strong>Deterministic tiers, no LLM in the authority path:</strong> T0_unproven → T1_observed (≥10) → T2_credible (≥30 + skill + risk pass) → T3_trusted (≥100 + 60d + excess CI). Revocation on risk flags is immediate.</li>
+      <li><strong>Open source (MIT):</strong> every memory pointer documented — a judge finds the critical path in under two minutes.</li>
+    </ul>
     <div class="cta-row" style="margin-top:28px">
       <a class="btn btn-tg" href="https://t.me/MandateBetaBot">Try it: @MandateBetaBot</a>
     </div>
+  </section>
+
+  <section id="pilot">
+    <h2>Operator pilot program</h2>
+    <p class="pilot-lead" style="color:var(--muted)">We are looking for <strong>5 operators</strong> of paid Telegram trading groups to run Mandate for 30 days, free.</p>
+    <div class="steps" style="margin-top:18px">
+      <div class="step">
+        <span class="num">1</span><h3>2-minute setup</h3>
+        <p>Add <code>@MandateBetaBot</code> to your group. It pins a short explainer so your members know exactly what gets verified and what stays private.</p>
+      </div>
+      <div class="step">
+        <span class="num">2</span><h3>Day-1 value with zero claims</h3>
+        <p>Every caller who won't verify gets a visible <code>UNVERIFIED</code> card with an ask counter. The asymmetry alone changes the room.</p>
+      </div>
+      <div class="step">
+        <span class="num">3</span><h3>Verdicts that compound</h3>
+        <p>Each claimed member's record tightens over weeks. Your group's credibility becomes checkable — and non-portable to competitors.</p>
+      </div>
+    </div>
+    <p style="margin-top:20px">To apply, message the founder directly on Telegram:
+      <a href="https://t.me/kiter9" style="color:var(--link);font-weight:700">@kiter9</a>.
+      Include your group size and current subscription price — pilots are matched on a first-come basis.
+    </p>
+  </section>
+
+  <section id="log">
+    <h2>Validation log</h2>
+    <p style="color:var(--muted); margin-bottom:16px">Dated, factual, updated as things happen. No vanity metrics.</p>
+    <div class="card" style="font-size:13.5px">2026-09-05  Pilot bot live in a real Telegram group (@MandateBetaBot)
+           First wallet claim recorded &amp; anchored on Base (tx 0xc9344b…be0f4)
+           First real forward-only trade ingested from the public API —
+           verdict: T0 unproven, n=1, "not distinguishable" (honest, by design)
+2026-09-04  Verifier deployed on Fly.io with persistent memory volume
+2026-08-xx  10+ prep-window operator discovery conversations; spec locked
+           (SPEC.md §10: activation = ≥3 claims + ≥1 card on a live call in 7d)</div>
   </section>
 
   <footer>
