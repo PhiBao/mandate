@@ -204,6 +204,14 @@ class MandateMemory:
         self._client.set_tenant(trader_tenant(chain, wallet))
         return self._client.get_reference(f"pos:{uid}") is not None
 
+    def claim_tx_used(self, tx_hash: str) -> bool:
+        self._client.set_tenant("claims:tx")
+        return self._client.get_reference(f"claimtx:{tx_hash.lower()}") is not None
+
+    def mark_claim_tx(self, tx_hash: str) -> None:
+        self._client.set_tenant("claims:tx")
+        self._client.set_reference(f"claimtx:{tx_hash.lower()}", {"used": True})
+
     def spent_today_usd(self, chat_id: str) -> float:
         self._client.set_tenant(ledger_tenant(chat_id))
         try:

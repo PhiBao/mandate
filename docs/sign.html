@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mandate — claim your wallet</title>
+<style>
+  :root { --bg:#0a0e14; --panel:#11161f; --line:#232b38; --text:#e8edf3; --muted:#9aa7b8; --accent:#3ddc84; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif; line-height:1.55; padding:24px; }
+  .wrap { max-width:560px; margin:0 auto; }
+  h1 { font-size:22px; margin-bottom:6px; }
+  p.sub { color:var(--muted); font-size:14px; margin-bottom:20px; }
+  textarea { width:100%; min-height:150px; background:#0d1219; color:var(--text); border:1px solid var(--line); border-radius:10px; padding:12px; font-family:ui-monospace,Menlo,monospace; font-size:12.5px; }
+  button { width:100%; margin-top:14px; padding:14px; border:0; border-radius:10px; background:var(--accent); color:#06110b; font-weight:800; font-size:16px; cursor:pointer; }
+  button[disabled] { opacity:.45; cursor:default; }
+  .out { margin-top:16px; background:#0d1219; border:1px solid var(--line); border-radius:10px; padding:12px; font-family:ui-monospace,Menlo,monospace; font-size:12px; word-break:break-all; display:none; }
+  .ok { color:var(--accent); font-size:14px; margin-top:12px; display:none; }
+  .err { color:#ff6b6b; font-size:13px; margin-top:12px; display:none; }
+  .steps { color:var(--muted); font-size:13px; margin:18px 0; }
+  .steps li { margin-bottom:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Claim your wallet</h1>
+  <p class="sub">Proves to the group's verifier that you control this wallet. Tracking is forward-only from the moment you claim — nothing before today counts.</p>
+
+  <ol class="steps">
+    <li>Check the message below (the bot filled it in for you).</li>
+    <li>Tap <b>Sign with MetaMask</b> — you only <i>sign</i>; this never gives anyone access to funds.</li>
+    <li>Copy the <b>/claim …</b> line it gives you and paste it back into your group chat.</li>
+  </ol>
+
+  <textarea id="msg" spellcheck="false"></textarea>
+  <button id="sign">Sign with MetaMask</button>
+  <div class="err" id="err"></div>
+  <div class="out" id="out"></div>
+  <button id="copy" style="display:none;background:#1c2531;color:var(--text);border:1px solid var(--line);">Copy /claim line</button>
+  <div class="ok" id="ok">Copied. Now paste it into the group chat.</div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const preset = params.get("m");
+if (preset) $("msg").value = decodeURIComponent(preset);
+
+function walletFromMessage(text) {
+  for (const line of text.split("\n")) {
+    if (line.startsWith("wallet:")) return line.split(":").slice(1).join(":").trim();
+  }
+  return null;
+}
+
+$("sign").onclick = async () => {
+  $("err").style.display = "none"; $("ok").style.display = "none";
+  const msg = $("msg").value.trim();
+  const wallet = walletFromMessage(msg);
+  if (!wallet) { $("err").textContent = "This message has no wallet: line — ask the bot for a fresh claim message."; $("err").style.display = "block"; return; }
+  if (!window.ethereum) { $("err").textContent = "No wallet found. Install MetaMask (app or browser extension), then reopen this page."; $("err").style.display = "block"; return; }
+  try {
+    $("sign").disabled = true; $("sign").textContent = "Waiting for signature…";
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    const signer = accounts[0];
+    if (signer && signer.toLowerCase() !== wallet.toLowerCase()) {
+      throw new Error("MetaMask account " + signer.slice(0,10) + "… is not the claimed wallet " + wallet.slice(0,10) + "… . Switch accounts and sign again.");
+    }
+    const sig = await window.ethereum.request({ method: "personal_sign", params: [msg, signer] });
+    const line = "/claim " + wallet + " " + sig;
+    $("out").textContent = line;
+    $("out").style.display = "block";
+    $("copy").style.display = "block";
+  } catch (e) {
+    $("err").textContent = e && e.message ? e.message : "Signing was cancelled or failed.";
+    $("err").style.display = "block";
+  } finally {
+    $("sign").disabled = false; $("sign").textContent = "Sign with MetaMask";
+  }
+};
+
+$("copy").onclick = async () => {
+  try { await navigator.clipboard.writeText($("out").textContent); $("ok").style.display = "block"; }
+  catch { document.execCommand("copy"); $("ok").style.display = "block"; }
+};
+</script>
+</body>
+</html>

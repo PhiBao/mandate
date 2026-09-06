@@ -40,13 +40,26 @@ class PendingClaim:
 class BotState:
     pending: dict[str, PendingClaim] = field(default_factory=dict)
     ask_counts: dict[str, int] = field(default_factory=dict)
+    pending_transfers: dict[str, PendingTransfer] = field(default_factory=dict)
 
 
 class MandateBot:
-    def __init__(self, mem: MandateMemory, transport: Transport) -> None:
+    def __init__(
+        self,
+        mem: MandateMemory,
+        transport: Transport,
+        *,
+        claim_treasury: str = "",
+        transfer_checker=None,
+    ) -> None:
         self._mem = mem
         self._transport = transport
         self.state = BotState()
+        self._claim_treasury = claim_treasury
+        # transfer_checker(pending) -> (tx_hash, ts) | None; injectable for tests
+        from .transfer_claim import find_matching_transfer
+
+        self._transfer_checker = transfer_checker or find_matching_transfer
 
     def handle(self, update: Update) -> None:
         self._remember_username(update.chat_id, update.username, update.user_id)
@@ -90,11 +103,24 @@ class MandateBot:
             self.state.pending[f"{update.chat_id}:{update.user_id}"] = PendingClaim(
                 wallet=wallet, nonce=nonce, issued_at=issued, message=message
             )
-            self._transport.send(
-                update.chat_id,
+            reply = (
                 "Sign this exact message with the wallet's private key, then:\n"
-                f"/claim {wallet} <signature>\n\n{message}",
+                f"/claim {wallet} <signature>\n\n"
+                f"{message}"
             )
+            if self._claim_treasury:
+                from .transfer_claim import build_pending, dm_text
+
+                key = f"{update.chat_id}:{update.user_id}"
+                pending = build_pending(update.chat_id, update.user_id, update.username, wallet)
+                self.state.pending_transfers[key] = pending
+                reply = (
+                    "EASIEST — send a tiny fee from the wallet you're claiming:\n\n"
+                    f"{dm_text(pending, self._claim_treasury)}\n\n"
+                    "———— OR ————\n\n"
+                    + reply
+                )
+            self._transport.send(update.chat_id, reply)
             return
 
         if len(parts) == 3:
@@ -128,6 +154,70 @@ class MandateBot:
             return
 
         self._transport.send(update.chat_id, "Usage: /claim <wallet> or /claim <wallet> <signature>")
+
+    async def tick(self) -> None:
+        """Called once per polling cycle: settle pending transfer claims."""
+        if not self.state.pending_transfers:
+            return
+        from datetime import datetime, timezone
+
+        now = datetime.now(timezone.utc)
+        from .records import Claim
+        from .claims import claim_digest
+
+        for key, pending in list(self.state.pending_transfers.items()):
+            expires = datetime.fromisoformat(pending.expires_at)
+            if now > expires:
+                del self.state.pending_transfers[key]
+                self._transport.send(
+                    pending.chat_id,
+                    f"Claim request for {pending.wallet} expired (10 min). "
+                    "Send /claim <wallet> again to restart.",
+                )
+                continue
+            try:
+                found = await self._transfer_checker(
+                    self._claim_treasury, pending.wallet, pending.amount_units, pending.created_at
+                )
+            except Exception:
+                continue
+            if not found:
+                continue
+            tx_hash, ts = found
+            if self._mem.claim_tx_used(tx_hash):
+                continue
+            self._mem.mark_claim_tx(tx_hash)
+            del self.state.pending_transfers[key]
+            claimed_at = datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
+            message = (
+                "Mandate wallet claim (transfer-proven)\n"
+                f"chain: hyperliquid\n"
+                f"wallet: {pending.wallet.lower()}\n"
+                f"group: {pending.chat_id}\n"
+                f"user: {pending.user_id}\n"
+                f"nonce: transfer:{tx_hash}\n"
+                f"issued_at: {claimed_at}\n"
+                "Signing proves control of this wallet for forward-only verification."
+            )
+            claim = Claim(
+                chain="hyperliquid",
+                wallet=pending.wallet.lower(),
+                group_id=pending.chat_id,
+                user_id=pending.user_id,
+                nonce=f"transfer:{tx_hash}",
+                message=message,
+                message_hash="0x" + tx_hash[2:].lower(),
+                signature=tx_hash,
+                claimed_at=claimed_at,
+            )
+            self._mem.record_claim(claim)
+            self._transport.send(
+                pending.chat_id,
+                f"Fee received — {pending.wallet} claimed by @{pending.username} and "
+                f"timestamped at {claimed_at} (block time, provable onchain).\n"
+                "Tracking is forward-only from this moment.",
+            )
+            break  # one settlement per tick keeps pacing simple
 
     def _handle_standing(self, update: Update) -> None:
         parts = update.text.split()

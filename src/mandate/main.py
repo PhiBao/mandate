@@ -13,11 +13,12 @@ async def run() -> None:
     settings = Settings.from_env()
     token = settings.require_telegram()
     mem = MandateMemory(settings.db_path)
+    treasury = os.environ.get("MANDATE_CLAIM_TREASURY", "")
 
     from .telegram import TelegramTransport, PollingRunner
 
     transport = TelegramTransport(token)
-    bot = MandateBot(mem, transport)
+    bot = MandateBot(mem, transport, claim_treasury=treasury)
     runner = PollingRunner(bot, transport)
 
     loop = asyncio.get_running_loop()

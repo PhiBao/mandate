@@ -66,6 +66,9 @@ class PollingRunner:
             if upd is None:
                 continue
             self._bot.handle(upd)
+        tick = getattr(self._bot, "tick", None)
+        if tick is not None:
+            await tick()
         return len(raw_updates)
 
     async def run_forever(self) -> None:
