@@ -212,6 +212,29 @@ class MandateMemory:
         self._client.set_tenant("claims:tx")
         self._client.set_reference(f"claimtx:{tx_hash.lower()}", {"used": True})
 
+    def save_transfer_pending(self, key: str, body: dict) -> None:
+        self._client.set_tenant("claims:pending")
+        self._client.set_entity("transfer_pending", key, body)
+
+    def load_transfer_pendings(self) -> list[dict]:
+        self._client.set_tenant("claims:pending")
+        try:
+            ents = self._client.list_entities("transfer_pending")
+        except Exception:
+            return []
+        out = []
+        for e in ents or []:
+            if isinstance(e, dict):
+                out.append({"key": e.get("name", ""), "body": e.get("body", {}) or {}})
+        return out
+
+    def delete_transfer_pending(self, key: str) -> None:
+        self._client.set_tenant("claims:pending")
+        try:
+            self._client.delete_entity("transfer_pending", key)
+        except Exception:
+            pass
+
     def spent_today_usd(self, chat_id: str) -> float:
         self._client.set_tenant(ledger_tenant(chat_id))
         try:

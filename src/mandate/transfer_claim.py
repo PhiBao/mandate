@@ -91,9 +91,12 @@ async def find_matching_transfer(
     """Return (tx_hash, block_timestamp) for the first matching USDC
     transfer treasury<-wallet of exactly amount_units since since_iso."""
     since = datetime.fromisoformat(since_iso)
-    since_hex = hex(int(since.timestamp()))
     async with httpx.AsyncClient(timeout=30.0) as client:
         latest = int(await _rpc(client, rpc_url, "eth_blockNumber", []), 16)
+        # NOTE: fromBlock must be a block number, never a timestamp.
+        # ~2s blocks on Base; 3000 blocks ≈ 100 min, comfortably covering
+        # the 10-min claim window plus clock skew.
+        from_block = max(0, latest - 3000)
         logs = await _rpc(
             client,
             rpc_url,
@@ -105,11 +108,14 @@ async def find_matching_transfer(
                     _topic_addr(wallet),
                     _topic_addr(treasury),
                 ],
-                "fromBlock": since_hex,
+                "fromBlock": hex(from_block),
                 "toBlock": hex(latest),
             }],
         )
-        for log in logs:
+        # Newest first: a wallet may legitimately send the same dust amount
+        # twice (retry taps); the claim must bind to the freshest proof,
+        # and consumed tx hashes can never verify a second claim.
+        for log in reversed(logs):
             try:
                 data = log.get("data", "0x")
                 if len(data) >= 66 and int(data[2:66], 16) == amount_units:

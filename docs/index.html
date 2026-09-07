@@ -136,7 +136,7 @@
     <div class="steps">
       <div class="step">
         <span class="num">1</span><h3>Claim a wallet</h3>
-        <p>Run <code>/claim &lt;wallet&gt;</code>, sign the exact EIP-191 message with your private key. The bot verifies signer == wallet and timestamps the claim — permanently. Claiming 5 wallets to promote the winner is impossible: all claims bind and all count.</p>
+        <p>Run <code>/claim &lt;wallet&gt;</code>, then send a tiny USDC fee (~$0.02, random amount, 10-minute window) from that wallet. The transfer proves you control it, and its block timestamp starts your forward-only clock — onchain, no trust in our database required. Zero-cost alternative: sign the exact EIP-191 message (or sign in MetaMask via our page). Claiming 5 wallets to promote the winner is impossible: all claims bind and all count.</p>
       </div>
       <div class="step">
         <span class="num">2</span><h3>Forward-only tracking</h3>
@@ -166,7 +166,7 @@ Over the same window: BTC +18%, this wallet +11%.</div>
   <section id="commands">
     <h2>Commands</h2>
     <div class="cmds">
-      <div class="cmd"><code>/claim &lt;wallet&gt; [signature]</code><p>Two-step wallet claim: get the message, sign it, send back the signature.</p></div>
+      <div class="cmd"><code>/claim &lt;wallet&gt; [signature]</code><p>Two paths: send a tiny USDC fee from that wallet (easiest — the transfer proves control and timestamps the claim onchain), or sign the exact message and send the signature back.</p></div>
       <div class="cmd"><code>/standing [@user]</code><p>Full standing card — tier, trades, win rate, CI, drawdown, wallets claimed.</p></div>
       <div class="cmd"><code>/why [@user]</code><p>The derivation trail: claim hash, evidence, exclusions, CI method, tier reasons.</p></div>
       <div class="cmd"><code>/search &lt;query&gt;</code><p>Search traders and verdicts across persistent memory.</p></div>

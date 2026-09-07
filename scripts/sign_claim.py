@@ -1,18 +1,18 @@
-"""Sign a /claim message — one command, prints a paste-ready line.
+"""Sign a /claim message — fallback path for zero-cost wallets.
 
-Two ways to use it:
+Primary claim path (no terminal needed): the bot asks for a tiny USDC
+fee transfer; see src/mandate/transfer_claim.py. This script is the
+signature fallback:
 
-1. EASY MODE (recommended): run the demo bot via scripts/run_demo_bot.py,
-   send /claim <wallet> in Telegram, then just run:
+1. The bot prints the exact EIP-191 message in chat — paste it into a file.
+2. Run with the wallet key in env (never as an argv flag):
 
-       export LIVE_KEY=<burner key, from seed_demo.py output>
-       .venv/bin/python scripts/sign_claim.py
+       export LIVE_KEY=<key>
+       .venv/bin/python scripts/sign_claim.py message.txt
 
-   It reads the claim message the bot just sent (.claim_message.txt) and
-   prints ONE line — copy-paste that line into Telegram. Done.
-
-2. OLD MODE: paste the exact claim message into a file, then
-   .venv/bin/python scripts/sign_claim.py message.txt
+   It prints ONE line: `/claim <wallet> <sig>` — paste that back into chat.
+3. Or sign the same message in MetaMask via docs/sign.html (static page,
+   no server) and paste the resulting /claim line back into chat.
 """
 
 from __future__ import annotations
@@ -27,14 +27,6 @@ from mandate.claims import sign_message  # noqa: E402
 
 CLAIM_FILE = Path(".claim_message.txt")
 WALLET_LINE = "wallet:"
-
-
-def _extract_message(raw: str) -> str:
-    """Bot replies embed the claim message after the 'then:' line."""
-    marker = "then:"
-    if marker in raw:
-        raw = raw.split(marker, 1)[1]
-    return raw.strip()
 
 
 def _wallet_from_message(message: str) -> str:
@@ -54,10 +46,10 @@ def main() -> None:
     else:
         if not CLAIM_FILE.exists():
             raise SystemExit(
-                f"{CLAIM_FILE} not found — send /claim <wallet> in Telegram first "
-                "(the demo bot saves the message automatically)."
+                "usage: .venv/bin/python scripts/sign_claim.py message.txt "
+                "(paste the exact claim message the bot printed into message.txt first)"
             )
-        message = _extract_message(CLAIM_FILE.read_text())
+        message = Path(CLAIM_FILE).read_text().strip()
 
     wallet = _wallet_from_message(message)
     sig = sign_message(message, key)

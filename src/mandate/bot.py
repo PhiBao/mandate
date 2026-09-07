@@ -114,6 +114,15 @@ class MandateBot:
                 key = f"{update.chat_id}:{update.user_id}"
                 pending = build_pending(update.chat_id, update.user_id, update.username, wallet)
                 self.state.pending_transfers[key] = pending
+                self._mem.save_transfer_pending(key, {
+                    "chat_id": pending.chat_id,
+                    "user_id": pending.user_id,
+                    "username": pending.username,
+                    "wallet": pending.wallet,
+                    "amount_units": pending.amount_units,
+                    "created_at": pending.created_at,
+                    "expires_at": pending.expires_at,
+                })
                 reply = (
                     "EASIEST — send a tiny fee from the wallet you're claiming:\n\n"
                     f"{dm_text(pending, self._claim_treasury)}\n\n"
@@ -157,6 +166,24 @@ class MandateBot:
 
     async def tick(self) -> None:
         """Called once per polling cycle: settle pending transfer claims."""
+        from .transfer_claim import PendingTransfer
+
+        for saved in self._mem.load_transfer_pendings():
+            body = saved.get("body", {}) or {}
+            key = saved.get("key", "")
+            if key and key not in self.state.pending_transfers and body.get("wallet"):
+                try:
+                    self.state.pending_transfers[key] = PendingTransfer(
+                        chat_id=str(body.get("chat_id", "")),
+                        user_id=str(body.get("user_id", "")),
+                        username=str(body.get("username", "")),
+                        wallet=str(body["wallet"]),
+                        amount_units=int(body.get("amount_units", 0)),
+                        created_at=str(body.get("created_at", "")),
+                        expires_at=str(body.get("expires_at", "")),
+                    )
+                except (TypeError, ValueError):
+                    continue
         if not self.state.pending_transfers:
             return
         from datetime import datetime, timezone
@@ -169,6 +196,7 @@ class MandateBot:
             expires = datetime.fromisoformat(pending.expires_at)
             if now > expires:
                 del self.state.pending_transfers[key]
+                self._mem.delete_transfer_pending(key)
                 self._transport.send(
                     pending.chat_id,
                     f"Claim request for {pending.wallet} expired (10 min). "
@@ -188,6 +216,7 @@ class MandateBot:
                 continue
             self._mem.mark_claim_tx(tx_hash)
             del self.state.pending_transfers[key]
+            self._mem.delete_transfer_pending(key)
             claimed_at = datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
             message = (
                 "Mandate wallet claim (transfer-proven)\n"

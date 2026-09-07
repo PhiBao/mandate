@@ -38,8 +38,8 @@
 | Step | Actor | Action | System |
 |------|-------|--------|--------|
 | 1 | Operator | Adds bot to group, sets monthly data budget | Bot pins explainer: what gets verified, what stays private |
-| 2 | Member | `/claim <wallet>` | Bot returns exact EIP-191 message with nonce; member signs off-band |
-| 3 | Member | `/claim <wallet> <sig>` | Bot recovers signer, verifies wallet==signer, expiry, template; writes `Claim` to Sibyl member tenant; optionally anchors hash on Base via `ClaimAnchor`; DMs confirmation with digest |
+| 2 | Member | `/claim <wallet>` | Bot asks for a tiny USDC fee (random ~$0.02 amount, 10-min window) sent **from that wallet** — **or** returns the exact EIP-191 message with nonce for a zero-cost signature claim |
+| 3 | Member | fee transfer (or `/claim <wallet> <sig>`) | Bot matches the onchain transfer (exact amount, 10-min window) and records `claimed_at` = block timestamp — provable onchain; signature path recovers signer, verifies wallet==signer, expiry, template. Writes `Claim` to Sibyl member tenant; optionally anchors hash on Base via `ClaimAnchor`; confirms with digest. Fee is a disclosed verification charge (anti-spam); one transfer verifies one claim |
 | 4 | System | Forward-only tracking | Ingests closed positions **from claim timestamp only** via VenueAdapter (Omni $0.005). Quality-flagged positions excluded, counted. Normalizes to return series, window span |
 | 5 | System | Verdict + Mandate | Bootstrap 10k resamples → 95% CI. Computes excess vs benchmark, drawdown, win rate. Deterministic tier evaluator (no LLM) writes `Verdict` + `MandateEvent` with reasons, supersession hash |
 | 6 | Anyone | Posts a call ("long $HYPE") | Bot attaches **standing card** inline — including for members who never claimed |
